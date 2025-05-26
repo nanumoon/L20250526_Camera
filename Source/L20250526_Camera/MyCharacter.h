@@ -12,6 +12,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UInputMappingContext;
 
 UCLASS()
 class L20250526_CAMERA_API AMyCharacter : public ACharacter
@@ -45,6 +46,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Input", EditAnywhere)
 	TObjectPtr<UInputAction> IA_Zoom;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Input", EditAnywhere)
+	TObjectPtr<UInputMappingContext> IMC_Default;
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Components", VisibleAnywhere)

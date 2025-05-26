@@ -2,14 +2,16 @@
 
 
 #include "MyCharacter.h"
-#include "EnhancedInputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "EnhancedInputComponent.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -18,16 +20,24 @@ AMyCharacter::AMyCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -GetCapsuleComponent()->GetScaledCapsuleHalfHeight()),
+		FRotator(0, -90, 0));
+
+
+
+
 }
 
 // Called when the game starts or when spawned
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
+
 }
 
-// Called every frame
+// Ca lled every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -39,10 +49,23 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	UEnhancedInputComponent* UEIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (UEIC)
+	{
+		UEIC->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMyCharacter::OnMove);
+		UEIC->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMyCharacter::OnLook);
+		UEIC->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &AMyCharacter::OnJump);
+		UEIC->BindAction(IA_Zoom, ETriggerEvent::Triggered, this, &AMyCharacter::OnZoom);
+
+	}
+
 }
 
 void AMyCharacter::OnMove(const FInputActionValue& Value)
 {
+	FVector2D DirectionVector = Value.Get<FVector2D>();
+	AddMovementInput(GetActorForwardVector(), DirectionVector.Y);
+	AddMovementInput(GetActorRightVector(), DirectionVector.X);
 }
 
 void AMyCharacter::OnLook(const FInputActionValue& Value)
@@ -55,7 +78,9 @@ void AMyCharacter::OnZoom(const FInputActionValue& Value)
 
 void AMyCharacter::OnJump(const FInputActionValue& Value)
 {
+	Jump();
 }
+
 
 
 
