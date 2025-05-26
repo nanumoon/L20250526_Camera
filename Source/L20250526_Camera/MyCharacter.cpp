@@ -7,6 +7,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AMyCharacter::AMyCharacter()
@@ -64,12 +65,27 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void AMyCharacter::OnMove(const FInputActionValue& Value)
 {
 	FVector2D DirectionVector = Value.Get<FVector2D>();
-	AddMovementInput(GetActorForwardVector(), DirectionVector.Y);
-	AddMovementInput(GetActorRightVector(), DirectionVector.X);
+
+	FRotator CameraRotation = GetControlRotation();
+
+	FRotator FloorProjectionRotation = FRotator(0, CameraRotation.Yaw, CameraRotation.Roll);
+	FVector CameraForward = UKismetMathLibrary::GetForwardVector(FloorProjectionRotation);
+	FVector CameraRight = UKismetMathLibrary::GetRightVector(FloorProjectionRotation);
+
+	AddMovementInput(CameraForward, DirectionVector.Y);
+	AddMovementInput(CameraRight, DirectionVector.X);
 }
 
 void AMyCharacter::OnLook(const FInputActionValue& Value)
 {
+	FVector2D LookVector = Value.Get<FVector2D>();
+
+
+
+
+	AddControllerYawInput(LookVector.X);
+	AddControllerPitchInput(LookVector.Y);
+
 }
 
 void AMyCharacter::OnZoom(const FInputActionValue& Value)
